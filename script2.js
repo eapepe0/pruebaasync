@@ -1,4 +1,4 @@
-//VAriables globales
+//Variables globales
 const carrito = [];
 let productos = [];
 let btnProductos;
@@ -27,7 +27,9 @@ async function obtenerProductos() {
 
   }
 }
+
 //Renderiza el contenido div#lista_productos
+
 function mostrarProductos(productos) {
 
   const listaProductos = document.getElementById('lista_productos');
@@ -43,16 +45,14 @@ function mostrarProductos(productos) {
         </div>`
 
   })
-  btnProductos = document.querySelectorAll('.comprar_producto');
 }
 
-
-//Lectura de los botones comprar
-// function obtenerBtnComprar() {
-//   const btnProductos = document.querySelectorAll('.comprar_producto');
-// }
+//Funcionalidad del boton comprar de ls lista de productos. Carga el contenido del div comprar_producto
 
 function comprar(productos) {
+
+  //Leemos y guardamos una constante que tenga todos los botones comprar de los articulos
+  btnProductos = document.querySelectorAll('.comprar_producto');
 
   btnProductos.forEach((btn, i) => {
 
@@ -60,23 +60,53 @@ function comprar(productos) {
 
       comprarProducto.classList.toggle('activo');
       comprarProducto.innerHTML +=
-        `<h2 class="nombre">${productos[i].nombre}</h2>
-        <img id="compraImg" src="${productos[i].imagen}">
-        <h3 class="precioUnitario">${productos[i].precio}</h3>
-        <form action="">
+        `<h2 class="nombre">${productos[i - 1].nombre}</h2>
+        <img id="compraImg" src="${productos[i - 1].imagen}">
+        <h3 class="precioUnitario">$${productos[i - 1].precio}</h3>
+        <form action="" method="post">
           <label for="cantidad" class="cantidad">Cantidad:</label>
           <input id="cantidad" type="number" min="1" value="1">
           <input type="submit" class="btn btn-primary" value="Aceptar" id="aceptar">
           <input type="submit" class="btn btn-danger" value="Cancelar" id="cancelar">
-        </form>;`
+        </form>`;
+
+        
+        aceptarCompra(productos[i - 1], i - 1);
 
     })
+  })  
+}
+
+//Boton Aceptar de la compra
+
+function aceptarCompra(producto, i) {  
+
+  const btnAceptarCompra = document.getElementById('aceptar');
+
+  btnAceptarCompra.addEventListener('click', (event) => {
+
+    event.preventDefault();
+
+    const inputCantidad = document.getElementById('cantidad');
+
+    //En el input se me permite colocar la letra "e" por eso agrego esta capa para corroborar
+    if (isNaN(inputCantidad)) {
+
+      //No se agrega a carrito
+      comprarProducto.classList.toggle('activo')
+
+    }
+
+    agregarCarrito(producto.nombre, producto.cantidad, producto.precio);
+    comprarProducto.classList.toggle('activo')
+    console.log(carrito)
+
   })
 }
 
 //Carrito
 //Constructor de articulos para el carrito
-/*class ArticuloCarrito {
+class ArticuloCarrito {
 
   constructor(nombre, cantidad, precio) {
     this.nombre = nombre;
@@ -101,68 +131,28 @@ function agregarCarrito(nombre, cantidad, precio) {
     carrito.push(new ArticuloCarrito(nombre, cantidad, precio))
 
   }
-}*/
-
-
-//Carga el contenido de #comprar_producto
-function mostrarContenido(producto) {
-
-  comprarProducto.classList.toggle('activo');
-
-  comprarProducto.innerHTML +=
-    `<h2 class="nombre">${productos[producto].nombre}</h2>
-    <img src="${productos[producto].imagen}">
-    <h3 class="precioUnitario">$${productos[producto].precio}</h3>
-    <form action="">
-       <label for="cantidad" class="cantidad">Cantidad:</label>
-       <input id="cantidad" type="number" min="1" value="1" required>
-       <input type="submit" class="btn btn-primary" value="Aceptar" id="aceptar">
-       <input type="submit" class="btn btn-danger" value="Cancelar" id="cancelar">
-    </form>`;
-
 }
 
-//Boton Aceptar de la compra
-/*function aceptarCompra() {
 
-  const btnAceptarCompra = document.getElementById('aceptar');
 
-  btnAceptarCompra.addEventListener('click', (event) => {
 
-    event.preventDefault();
-
-    const inputCantidad = document.getElementById('cantidad');
-
-    //En el input se me permite colocar la letra "e" por eso agrego esta capa para corroborar
-    if (isNaN(inputCantidad)) {
-
-      //No se agrega a carrito
-      comprarProducto.classList.toggle('activo')
-
-    }
-
-    agregarCarrito();
-
-  })
-}*/
 
 //Iniciamos recuperando la lista de produtos del JSON
-function app() {
-  new Promise((resolve, reject) => {
+const cargarProductos = new Promise((resolve, reject) => {
 
-    obtenerProductos()
-      .then(() => {
-        if (productos.length > 0) {
-          resolve(productos);
-        }
-      })
-      .catch(error => {
-        reject(error);
-      });
+  obtenerProductos()
+    .then(() => {
+      if (productos.length > 0) {
+        resolve(productos);
+      }
+    })
+    .catch(error => {
+      reject(error);
+    });
 
-  })
-}
-app()
+})
+
+cargarProductos
   .then(() => {
     comprar(productos);
   })
